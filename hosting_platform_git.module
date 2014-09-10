@@ -6,6 +6,55 @@
  */
 
 /**
+ * Implements hook_hosting_tasks().
+ */
+function hosting_platform_git_hosting_tasks() {
+  $tasks = array();
+  
+  $tasks['platform']['git_pull'] = array(
+    'title' => t('Git pull'),
+    'description' => t('Pull from Git and verify'),
+    'access callback' => 'hosting_platform_git_pull_access',
+  );
+  
+  return $tasks;
+}
+
+/**
+ * Implements hook_perm().
+ */
+function hosting_platform_git_perm() {
+  return array(
+    'create git_pull task',
+  );
+}
+
+/**
+ * Implements hook_node_operations().
+ */
+function hosting_platform_git_node_operations() {
+  $operations = array();
+  
+  $operations['hosting-platform-git-pull'] = array(
+    'label' => t('Git pull'),
+    'callback' => 'hosting_task_operation',
+    'callback arguments' => array('git_pull'),
+  );
+  
+  return $operations;
+}
+
+/**
+ * Access callback for platform_redeploy operation.
+ */
+function hosting_platform_git_pull_access($node, $task) {
+  if ($task == 'git_pull' && isset($node->git['repo_url'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
  * Implements hook_form_alter().
  */
 function hosting_platform_git_form_alter(&$form, &$form_state, $form_id) {
